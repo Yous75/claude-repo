@@ -1,0 +1,125 @@
+<?php
+include('config.php');
+session_start();
+
+// If already logged in, go to home
+if (isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
+
+$error   = '';
+$success = '';
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $nom      = mysqli_real_escape_string($conn, $_POST['nom']);
+    $prenom   = mysqli_real_escape_string($conn, $_POST['prenom']);
+    $email    = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = $_POST['password'];
+    $confirm  = $_POST['confirm_password'];
+
+    // Validation
+    if (empty($nom) || empty($prenom) || empty($email) || empty($password)) {
+        $error = 'Please fill in all fields.';
+
+    } elseif (strlen($password) < 6) {
+        $error = 'Password must be at least 6 characters.';
+
+    } elseif ($password !== $confirm) {
+        $error = 'Passwords do not match.';
+
+    } else {
+        // Check if email already exists
+        $check = mysqli_query($conn, "SELECT id FROM users WHERE email = '$email'");
+
+        if (mysqli_num_rows($check) > 0) {
+            $error = 'An account with this email already exists.';
+        } else {
+            // Hash the password before saving
+            $hashed = password_hash($password, PASSWORD_DEFAULT);
+
+            $insert = "INSERT INTO users (nom, prenom, email, password, role)
+                       VALUES ('$nom', '$prenom', '$email', '$hashed', 'client')";
+
+            if (mysqli_query($conn, $insert)) {
+                $success = 'Account created! You can now sign in.';
+            } else {
+                $error = 'Something went wrong. Please try again.';
+            }
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>Sign Up - H&Y Jewelry</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<?php include('header.php'); ?>
+
+<div class="page-wrapper">
+    <div class="auth-page">
+        <div class="auth-box">
+
+            <h2>Create Account</h2>
+            <p class="auth-sub">Join H&Y Jewelry today</p>
+
+            <?php if ($error): ?>
+                <p class="msg-error"><?php echo $error; ?></p>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+                <p class="msg-success"><?php echo $success; ?></p>
+            <?php endif; ?>
+
+            <form action="inscription.php" method="POST">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nom">Last Name</label>
+                        <input type="text" id="nom" name="nom" placeholder="Martin" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prenom">First Name</label>
+                        <input type="text" id="prenom" name="prenom" placeholder="Sophie" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="At least 6 characters" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat your password" required>
+                </div>
+
+                <button type="submit" class="btn-submit">Create Account</button>
+
+            </form>
+
+            <p class="auth-footer">
+                Already have an account? <a href="connexion.php">Sign In</a>
+            </p>
+
+        </div>
+    </div>
+</div>
+
+<?php include('footer.php'); ?>
