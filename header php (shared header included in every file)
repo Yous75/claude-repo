@@ -1,0 +1,66 @@
+<?php
+// Start session on every page
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Count cart items for the badge
+$cart_count = 0;
+if (isset($_SESSION['panier']) && is_array($_SESSION['panier'])) {
+    foreach ($_SESSION['panier'] as $item) {
+        $cart_count += $item['quantite'];
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>H&Y Jewelry Store</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-inner">
+
+        <!-- Logo -->
+        <a href="index.php" class="logo">H&Y Jewelry</a>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <a href="index.php">Home</a>
+            <a href="search.php">Products</a>
+            <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+                <a href="admin.php" class="nav-admin">Admin Panel</a>
+            <?php endif; ?>
+        </nav>
+
+        <!-- Right side -->
+        <div class="nav-right">
+
+            <!-- Cart link with item count -->
+            <a href="panier.php" class="nav-cart">
+                Cart
+                <?php if ($cart_count > 0): ?>
+                    <b class="cart-count"><?php echo $cart_count; ?></b>
+                <?php endif; ?>
+            </a>
+
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <!-- Logged in: show name and logout -->
+                <span class="nav-username">Hello, <?php echo htmlspecialchars($_SESSION['user_prenom']); ?></span>
+                <a href="logout.php" class="btn-signout">Sign Out</a>
+            <?php else: ?>
+                <!-- Not logged in: show sign in / sign up -->
+                <a href="connexion.php" class="btn-signin">Sign In</a>
+                <a href="inscription.php" class="btn-signup">Sign Up</a>
+            <?php endif; ?>
+
+        </div>
+    </div>
+</header>
