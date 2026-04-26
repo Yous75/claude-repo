@@ -1,0 +1,19 @@
+<?php
+// ============================================
+// config.php - Database connection
+// Include this file in every PHP page
+// ============================================
+
+$host     = 'localhost';
+$user     = 'root';        // Change to your MySQL username
+$password = '';            // Change to your MySQL password
+$database = 'jewelry_store';
+
+$conn = mysqli_connect($host, $user, $password, $database);
+
+if (!$conn) {
+    die('Connection failed: ' . mysqli_connect_error());
+}
+
+mysqli_set_charset($conn, 'utf8');
+?>
