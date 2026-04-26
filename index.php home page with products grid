@@ -1,0 +1,69 @@
+<?php
+include('config.php');
+include('header.php');
+?>
+
+<div class="page-wrapper">
+
+    <!-- Hero -->
+    <div class="hero">
+        <h1>Welcome to H&Y Jewelry Store</h1>
+        <p class="hero-sub">Special jewelry handpicked for you!</p>
+    </div>
+
+    <!-- Success / Error messages -->
+    <?php if (isset($_SESSION['message'])): ?>
+        <p class="msg-success"><?php echo $_SESSION['message']; unset($_SESSION['message']); ?></p>
+    <?php endif; ?>
+
+    <!-- New Collection Title -->
+    <div class="section-title">
+        <h2>Our New Collection</h2>
+        <div class="title-line"></div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid">
+
+        <?php
+        $result = mysqli_query($conn, "SELECT * FROM products WHERE stock > 0");
+
+        while ($product = mysqli_fetch_assoc($result)):
+        ?>
+
+        <div class="product-card">
+
+            <!-- Product image -->
+            <div class="product-img-box">
+                <img src="<?php echo htmlspecialchars($product['image']); ?>"
+                     alt="<?php echo htmlspecialchars($product['nom']); ?>"
+                     class="product-img"
+                     onerror="this.src='images/no-image.jpg'">
+                <div class="badge-new">NEW</div>
+            </div>
+
+            <!-- Product info -->
+            <div class="product-info">
+                <p class="product-cat"><?php echo htmlspecialchars($product['categorie']); ?></p>
+                <p class="product-name"><?php echo htmlspecialchars($product['nom']); ?></p>
+                <p class="product-price"><?php echo number_format($product['prix'], 2); ?> DA</p>
+
+                <!-- Add to cart form (no JavaScript needed) -->
+                <form action="add_to_cart.php" method="POST">
+                    <input type="hidden" name="product_id"   value="<?php echo $product['id']; ?>">
+                    <input type="hidden" name="product_nom"  value="<?php echo htmlspecialchars($product['nom']); ?>">
+                    <input type="hidden" name="product_prix" value="<?php echo $product['prix']; ?>">
+                    <input type="hidden" name="redirect_to"  value="index.php">
+                    <button type="submit" class="btn-cart">Add to Cart</button>
+                </form>
+            </div>
+
+        </div>
+
+        <?php endwhile; ?>
+
+    </div>
+
+</div>
+
+<?php include('footer.php'); ?>
